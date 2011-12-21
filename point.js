@@ -22,9 +22,9 @@ Object.defineProperty(Point.prototype, "_", {
     set: function (value) {
         var ops = Point.operands;
         var operator;
-        if (ops.length === 2 && value === 0) { // 3 - 3
+        if (ops.length >= 2 && value === -3 * (ops.length-2)) { // 3 - 3 - 3 - ...
             operator = this.setSubtract;
-        } else if (ops.length === 2 && value === 1) { // 3 / 3
+        } else if (ops.length >= 2 && value === (new Array(ops.length+1)).join( '♣' ).replace( /♣/g, 3 ).split('').reduce(function(v) {return v/3; }) ) { // 3 / 3 / 3 / ...
             operator = this.setDivide;
         } else if (ops.length >= 2 && (value === 3 * ops.length)) { // 3 + 3 + 3 + ...
             operator = this.setAdd;
@@ -47,14 +47,22 @@ Object.defineProperty(Point.prototype, "_", {
 
 //-------------- Operator implementations
 
-Point.prototype.setSubtract = function (l, r) {
-    this.x = l.x - r.x;
-    this.y = l.y - r.y;
+Point.prototype.setSubtract = function (first) {
+    this.x = first.x;
+    this.y = first.y;
+    [].slice.call(arguments, 1).forEach(function (op) {
+        this.x -= op.x;
+        this.y -= op.y;
+    }, this);
     return this;
 }
-Point.prototype.setDivide = function (l, r) {
-    this.x = l.x / r.x;
-    this.y = l.y / r.y;
+Point.prototype.setDivide = function (first) {
+    this.x = first.x;
+    this.y = first.y;
+    [].slice.call(arguments, 1).forEach(function (op) {
+        this.x /= op.x;
+        this.y /= op.y;
+    }, this);
     return this;
 }
 Point.prototype.setAdd = function (first) {
